@@ -18,7 +18,7 @@ yum install httpd -y
 git clone https://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@github.com/HuyNguyen7994/the_project.git
 
 # Build Frontend
-export VITE_BACKEND_URL=http://localhost:8080/
+export VITE_BACKEND_URL=http://127.0.0.1:8080/
 cd /the_project/frontend/frontend
 npm i
 npm run build
@@ -29,4 +29,4 @@ service httpd start
 export VITE_BACKEND_URL=http://localhost:8080/
 cd /the_project/backend/app
 pip install .
-
+screen -dmS AppBackEnd uvicorn app.main:app --port 8080
