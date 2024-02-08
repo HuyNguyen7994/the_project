@@ -1,5 +1,5 @@
 #!/bin/bash
-sudo -i
+sudo su
 # Update package lists and install dependencies
 yum update -y
 yum install -y git
@@ -13,8 +13,20 @@ yum install python3-pip -y
 
 # Install Webserver
 yum install httpd -y
-service httpd start
 
 # Clone the Project
-export VITE_BACKEND_URL=http://localhost:8080/
 git clone https://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@github.com/HuyNguyen7994/the_project.git
+
+# Build Frontend
+export VITE_BACKEND_URL=http://localhost:8080/
+cd /the_project/frontend/frontend
+npm i
+npm run build
+cp -a ./dist/. /var/www/html
+service httpd start
+
+# Build Backend
+export VITE_BACKEND_URL=http://localhost:8080/
+cd /the_project/backend/app
+pip install .
+
