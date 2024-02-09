@@ -29,12 +29,12 @@ def _get_database_conn_str():
     logger.info(path)
     return path
 
-@app.get("/health")
+@app.get("api/v1/health")
 def check_health():
     return {"status": "healthy"}
 
 
-@app.post("/checkin/{participant}")
+@app.post("api/v1/checkin/{participant}")
 def increment_checkin(participant: str):
     today = datetime.date.today()
     with SqliteConnection(_get_database_conn_str()) as connection:
@@ -42,6 +42,6 @@ def increment_checkin(participant: str):
         cursor.execute("insert into checkin (participant, checkin_date) values (?, ?)", [participant, today])
     return {"participant": participant, "checkin": today}
 
-@app.post("/message/{participant}")
+@app.post("api/v1/message/{participant}")
 def echo(participant, message: Message):
     return {"sender": participant, "content" : message.content}
