@@ -1,7 +1,4 @@
-from typing import Union
-
 from fastapi import FastAPI
-from app.workers.echo import echo_func
 from app.workers.database import SqliteConnection
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -69,7 +66,7 @@ def run_etl(etl_payload: EtlPayload):
         )
     ) as connection:
         channel = connection.channel()
-        channel.queue_declare(queue="run_etl")
+        channel.queue_declare(queue="run_etl", arguments={"x-max-length": 1})
         channel.basic_publish(
             exchange="", routing_key="run_etl", body=etl_payload.etl_name
         )
