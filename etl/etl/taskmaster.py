@@ -1,12 +1,13 @@
 import os
 import pika
 from etl.source import aqicn_main
-from pika.channel import Channel
-from pika.adapters.blocking_connection import BlockingChannel
 from pika.spec import Basic
 from pika.spec import BasicProperties
+from pika.channel import Channel
+from pika.adapters.blocking_connection import BlockingChannel
 from loguru import logger
 from time import sleep
+from typing import Callable
 
 commands_map = {
     "aqicn": aqicn_main,
@@ -28,20 +29,24 @@ def execute_etl_script(
 
 
 def create_channel() -> BlockingChannel:
-    with pika.BlockingConnection(
+    connection = pika.BlockingConnection(
         pika.ConnectionParameters(
             host=os.getenv("RABBITMQ_HOST"),
             port=os.getenv("RABBITMQ_PORT"),
         )
-    ) as connection:
-        channel = connection.channel()
-        channel.queue_declare(queue="run_etl")
-        channel.basic_consume(
-            queue="run_etl", auto_ack=True, on_message_callback=execute_etl_script
-        )
-        return channel
+    )
+    channel = connection.channel()
+    channel.queue_declare(queue="run_etl", arguments={"x-max-length": 1})
+    return channel
 
 
-if __name__ == "__main__":
-    channel = create_channel()
-    channel.start_consuming()
+def consume_message(
+    channel: Channel,
+    queue_name: str,
+    on_message_callback: Callable[
+        [Channel, Basic.Deliver, BasicProperties, bytes], None
+    ],
+):
+    channel.basic_consume(
+        queue=queue_name, auto_ack=True, on_message_callback=on_message_callback
+    )

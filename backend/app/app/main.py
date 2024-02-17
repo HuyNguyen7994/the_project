@@ -59,14 +59,14 @@ def message(participant, message: Message):
 
 @app.post("/api/v1/etl/run")
 def run_etl(etl_payload: EtlPayload):
-    with pika.BlockingConnection(
+    connection = pika.BlockingConnection(
         pika.ConnectionParameters(
             host="localhost",
             port="5672",
         )
-    ) as connection:
-        channel = connection.channel()
-        channel.queue_declare(queue="run_etl", arguments={"x-max-length": 1})
-        channel.basic_publish(
-            exchange="", routing_key="run_etl", body=etl_payload.etl_name
-        )
+    )
+    channel = connection.channel()
+    channel.queue_declare(queue="run_etl", arguments={"x-max-length": 1})
+    channel.basic_publish(
+        exchange="", routing_key="run_etl", body=etl_payload.etl_name
+    )

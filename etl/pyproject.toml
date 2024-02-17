@@ -1,0 +1,21 @@
+[project]
+name = "app_etl"
+requires-python = ">=3.9"
+version = "0.0.1"
+
+dependencies = [
+    "requests",
+    "psycopg[binary]",
+    "pyarrow",
+    "pika",
+    "loguru"
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+test = ["pytest"]
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
