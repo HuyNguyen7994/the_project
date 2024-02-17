@@ -88,5 +88,13 @@ def write_to_postgres_pm25(conninfo: str, json_data: AQResponse):
                 logger.warning("No new data from API. Skipped update.")
                 return
             current_pm25 = extract_forecast_pm25(json_data)
-            cursor.execute(f"insert into historical_pm25 (timestamp,station_id,pm25_value) values ({current_timestamp, monitoring_station, current_pm25})")
-            cursor.execute("insert into forecast_pm25 (forecast_timestamp,stationd_id,forecast_date,avg_pm25,min_pm25,max_pm25) values()")
+            cursor.execute(
+                f"insert into historical_pm25 (timestamp,station_id,pm25_value) values ({current_timestamp, monitoring_station, current_pm25})"
+            )
+            cursor.execute(
+                "insert into forecast_pm25 (forecast_timestamp,stationd_id,forecast_date,avg_pm25,min_pm25,max_pm25) values()"
+            )
+
+
+def main():
+    pass
