@@ -1,8 +1,7 @@
-from etl.source.aqicn import extract_current_timestamp
+from etl.source.aqicn import extract_current_timestamp, write_to_postgres_pm25
 import datetime
 from pytz import timezone
 import logging
-import pytest
 import psycopg as pg
 
 logger = logging.getLogger(__name__)
@@ -11,22 +10,30 @@ SAMPLE_DATA = {
     "status": "ok",
     "data": {
         "time": {"iso": "2024-02-16T13:00:00+07:00"},
+        "idx": 13659,
+        "city": {
+            "geo": [11.030287, 106.35631],
+            "name": "Tây Ninh/Thị xã Tràng Bảng, Vietnam",
+            "url": "https://aqicn.org/city/vietnam/tay-ninh/thi-xa-trang-bang",
+            "location": "",
+        },
+        "iaqi": {
+            "dew": {"v": 21},
+            "h": {"v": 58},
+            "no2": {"v": 23},
+            "p": {"v": 1014},
+            "pm10": {"v": 62},
+            "pm25": {"v": 41},
+        },
     },
 }
 CONNINFO = "host=localhost port=5432 dbname=test user=postgres password=postgres"
 CREATE_TABLES = """
 create table historical_pm25 (
-    etl_ts timestamp,
+    etl_ts timestamp with time zone,
     station_id bigint,
+    station_ts timestamp with time zone,
     pm25_value smallint
-);
-create table forecast_pm25 (
-    etl_ts timestamp,
-    station_id bigint,
-    forecast_date date,
-    forecast_pm25_avg smallint,
-    forecast_pm25_max smallint,
-    forecast_pm25_min smallint
 );
 create table stations (
     station_id bigint,
@@ -37,7 +44,6 @@ create table stations (
 """
 DROP_TABLES = """
 drop table historical_pm25;
-drop table forecast_pm25;
 drop table stations;
 """
 
@@ -65,14 +71,40 @@ def test_extract_current_timestamp():
     )
 
 
-@pytest.fixture(scope="module")
-def postgres_session():
-    with pg.connect(conninfo=CONNINFO) as connection:
-        with connection.cursor() as cursor:
-            cursor.execute(CREATE_TABLES)
-        yield connection
-        with connection.cursor() as cursor:
-            cursor.execute(DROP_TABLES)
+def test_postgres_single():
+    try:
+        with pg.connect(conninfo=CONNINFO) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(CREATE_TABLES)
+        write_to_postgres_pm25(
+            conninfo=CONNINFO, json_data=SAMPLE_DATA, etl_ts=datetime.datetime.now()
+        )
+        with pg.connect(conninfo=CONNINFO) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute("select count(*) from historical_pm25")
+                assert cursor.fetchone() == (1,)
+    finally:
+        with pg.connect(conninfo=CONNINFO) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(DROP_TABLES)
 
-def test_postgres(postgres_session: pg.Connection):
-    pass
+def test_postgres_dedup():
+    try:
+        with pg.connect(conninfo=CONNINFO) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(CREATE_TABLES)
+        write_to_postgres_pm25(
+            conninfo=CONNINFO, json_data=SAMPLE_DATA, etl_ts=datetime.datetime.now()
+        )
+        write_to_postgres_pm25(
+            conninfo=CONNINFO, json_data=SAMPLE_DATA, etl_ts=datetime.datetime.now()
+        )
+        with pg.connect(conninfo=CONNINFO) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute("select count(*) from historical_pm25")
+                assert cursor.fetchone() == (1,)
+    finally:
+        with pg.connect(conninfo=CONNINFO) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(DROP_TABLES)
+                pass

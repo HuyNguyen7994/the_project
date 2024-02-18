@@ -1,5 +1,0 @@
-CREATE TABLE IF NOT EXISTS checkin (
-    participant TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    checkin_date DATE DEFAULT CURRENT_DATE
-);
