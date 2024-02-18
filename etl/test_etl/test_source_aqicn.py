@@ -1,4 +1,4 @@
-from etl.source.aqicn import extract_current_timestamp, write_to_postgres_pm25
+from etl.source.aqicn import extract_current_timestamp, write_to_postgres_pm25, extract_current_pm25
 import datetime
 from pytz import timezone
 import logging
@@ -24,6 +24,13 @@ SAMPLE_DATA = {
             "p": {"v": 1014},
             "pm10": {"v": 62},
             "pm25": {"v": 41},
+        },
+    },
+}
+SAMPLE_DATA_MISSING_CUR_PM25 = {
+    "data": {
+        "iaqi": {
+            "pm10": {"v": 62},
         },
     },
 }
@@ -70,6 +77,8 @@ def test_extract_current_timestamp():
         == 0
     )
 
+def test_missing_current_pm():
+    assert not extract_current_pm25(SAMPLE_DATA_MISSING_CUR_PM25)
 
 def test_postgres_single():
     try:

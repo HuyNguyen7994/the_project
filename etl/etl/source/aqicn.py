@@ -62,7 +62,7 @@ def get_gelocalized_feed(lat: str, lng: str, token: str) -> tuple[AQResponse, da
 
 
 def extract_current_pm25(json_data: AQResponse) -> int:
-    return json_data["data"]["iaqi"]["pm25"]["v"]
+    return json_data["data"]["iaqi"].get("pm25", {"v": None})["v"]
 
 
 def extract_forecast_pm25(json_data: AQResponse) -> list[AQForecastIndex]:
@@ -76,8 +76,18 @@ def extract_current_timestamp(json_data: AQResponse) -> datetime:
 def extract_monitoring_station(json_data: AQResponse) -> int:
     return json_data["data"]["idx"]
 
-def insert_historical_pm25(cursor: psycopg.Cursor, etl_ts: datetime, station_id: int, station_ts: datetime, pm25_value: int):
-    cursor.execute("insert into historical_pm25 (etl_ts, station_id, station_ts, pm25_value) values (%s, %s, %s, %s)",[etl_ts, station_id, station_ts, pm25_value])
+
+def insert_historical_pm25(
+    cursor: psycopg.Cursor,
+    etl_ts: datetime,
+    station_id: int,
+    station_ts: datetime,
+    pm25_value: int,
+):
+    cursor.execute(
+        "insert into historical_pm25 (etl_ts, station_id, station_ts, pm25_value) values (%s, %s, %s, %s)",
+        [etl_ts, station_id, station_ts, pm25_value],
+    )
 
 
 def write_to_postgres_pm25(conninfo: str, json_data: AQResponse, etl_ts: datetime):
@@ -101,5 +111,6 @@ def main(payload: dict):
     lat = payload["lat"]
     lng = payload["lng"]
     json_data, etl_ts = get_gelocalized_feed(lat, lng, token=token)
-    logger.debug(json_data)
-    write_to_postgres_pm25(conninfo=conninfo, json_data=json_data, etl_ts=etl_ts)
+    if json_data:
+        logger.debug(json_data)
+        write_to_postgres_pm25(conninfo=conninfo, json_data=json_data, etl_ts=etl_ts)
