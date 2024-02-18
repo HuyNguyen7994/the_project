@@ -2,6 +2,7 @@ import os
 import json
 import pika
 import logging
+import psycopg
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -43,5 +44,8 @@ def run_etl(etl_pipeline: str, latitude: str, longtitude: str):
 
 
 @app.get("/api/v1/aqicn/recent/{num}")
-def get_recent_air_quality():
-    pass
+def get_recent_air_quality(num: int):
+    with psycopg.connect(conninfo=os.getenv("POSTGRES_CONNINFO")) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute("select * from historical_pm25 order by etl_ts limit %s", (num,))
+            return cursor.fetchall()

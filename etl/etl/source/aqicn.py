@@ -56,7 +56,7 @@ class AQResponse(TypedDict):
 
 
 def get_gelocalized_feed(lat: str, lng: str, token: str) -> tuple[AQResponse, datetime]:
-    etl_ts = datetime.now()
+    etl_ts = datetime.now().astimezone()
     url = f"https://api.waqi.info/feed/geo:{lat};{lng}/?token={token}"
     return rq.get(url).json(), etl_ts
 

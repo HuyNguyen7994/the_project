@@ -9,30 +9,28 @@ const data = [
 ]
 
 const FormComponent: React.FC = () => {
-  const url = import.meta.env.VITE_BACKEND_URL
-  const [inputData, setInputData] = useState('');
+  const url = import.meta.env.VITE_BACKEND_URL;
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
   const [responseMessage, setResponseMessage] = useState('');
 
   const submitForm = async () => {
     try {
-      const dataToSend = { "content": inputData };
-      console.log(dataToSend);
-      console.log(JSON.stringify(dataToSend));
-      const response = await fetch(url + "message/Tester", {
+      const dataToSend = { latitude, longitude };
+      const response = await fetch(url + `/api/v1/etl/run/aqicn/${latitude}/${longitude}`, {
         headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
         },
         method: 'POST',
-        body: JSON.stringify(dataToSend)
+        body: JSON.stringify(dataToSend),
       });
-      console.log(response);
+
       if (!response.ok) {
-        throw new Error(`Expect 200. Got ${response.status}`)
+        throw new Error(`Expect OK response. Got ${response.status}`);
       }
-      const data = await response.json();
-      console.log(data);
-      setResponseMessage('We sent your message to the organizer: ' + JSON.stringify(data.content));
+
+      setResponseMessage('ETL Job submitted. Please wait a while then refresh the page for latest result.');
     } catch (error) {
       console.error('Error:', error);
       setResponseMessage('Error occurred while processing the request.');
@@ -42,13 +40,21 @@ const FormComponent: React.FC = () => {
   return (
     <div>
       <form>
-        <label htmlFor="inputData">Your Message to Organizer:</label>
-        <br />
+        <label htmlFor="latitude">Latitude:</label>
         <input
           type="text"
-          id="inputData"
-          value={inputData}
-          onChange={(e) => setInputData(e.target.value)}
+          id="latitude"
+          value={latitude}
+          onChange={(e) => setLatitude(e.target.value)}
+          required
+        />
+        <br />
+        <label htmlFor="longitude">Longitude:</label>
+        <input
+          type="text"
+          id="longitude"
+          value={longitude}
+          onChange={(e) => setLongitude(e.target.value)}
           required
         />
         <br />
@@ -71,14 +77,12 @@ const FormComponent: React.FC = () => {
 function App() {
   return (
     <>
-      <div>
-      </div>
-      <h1>Let's Practice Together</h1>
+      <h1>Check Area Air Quality</h1>
       <div className="card">
         <FormComponent />
       </div>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
