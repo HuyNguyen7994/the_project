@@ -1,8 +1,9 @@
+import os
+import psycopg
 import requests as rq
+from loguru import logger
 from typing import TypedDict
 from datetime import datetime
-import psycopg
-from loguru import logger
 
 
 class AQCity(TypedDict):
@@ -94,5 +95,11 @@ def write_to_postgres_pm25(conninfo: str, json_data: AQResponse, etl_ts: datetim
             insert_historical_pm25(cursor, etl_ts, station_id, station_ts, pm25_value)
 
 
-def main():
-    pass
+def main(payload: dict):
+    conninfo = os.getenv("POSTGRES_CONNINFO")
+    token = os.getenv("AQICN_TOKEN")
+    lat = payload["lat"]
+    lng = payload["lng"]
+    json_data, etl_ts = get_gelocalized_feed(lat, lng, token=token)
+    logger.debug(json_data)
+    write_to_postgres_pm25(conninfo=conninfo, json_data=json_data, etl_ts=etl_ts)

@@ -1,4 +1,5 @@
 import os
+import json
 import pika
 from etl.source import aqicn_main
 from pika.spec import Basic
@@ -6,7 +7,6 @@ from pika.spec import BasicProperties
 from pika.channel import Channel
 from pika.adapters.blocking_connection import BlockingChannel
 from loguru import logger
-from time import sleep
 from typing import Callable
 
 commands_map = {
@@ -17,13 +17,14 @@ commands_map = {
 def execute_etl_script(
     channel: Channel, method: Basic.Deliver, properties: BasicProperties, body: bytes
 ):
-    command = body.decode("utf-8")
+    body = json.loads(body)
+    command = body["command"]
+    payload = body["payload"]
     if command not in commands_map:
         logger.error(f"Command {command} is invalid. Skipped.")
         return
     logger.info(f"Executing {command} job")
-    commands_map[command]()
-    sleep(5)
+    commands_map[command](payload)
     logger.info(f"Finished execution of {command} job")
     return
 
@@ -36,7 +37,7 @@ def create_channel() -> BlockingChannel:
         )
     )
     channel = connection.channel()
-    channel.queue_declare(queue="run_etl", arguments={"x-max-length": 1})
+    channel.queue_declare(queue="run_etl")
     return channel
 
 
