@@ -1,18 +1,18 @@
 import { useState } from 'react'
 import './App.css'
+import GaugeChart from './GaugeChart';
 
-import { LineChart, Line, CartesianGrid, XAxis, YAxis } from 'recharts';
-const data = [
-  { name: 'Page A', uv: 400, pv: 2400, amt: 2400 },
-  { name: 'Page B', uv: 600, pv: 2200, amt: 2600 },
-  { name: 'Page C', uv: 800, pv: 2000, amt: 2800 },
-]
+interface AirQualityRow {
+  city_name: string;
+  pm25_value: number
+}
 
 const FormComponent: React.FC = () => {
   const url = import.meta.env.VITE_BACKEND_URL;
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
   const [responseMessage, setResponseMessage] = useState('');
+  const [airQualityValues, setAirQualityValues] = useState<AirQualityRow[]>([]);
 
   const submitForm = async () => {
     try {
@@ -29,13 +29,26 @@ const FormComponent: React.FC = () => {
       if (!response.ok) {
         throw new Error(`Expect OK response. Got ${response.status}`);
       }
-
       setResponseMessage('ETL Job submitted. Please wait a while then refresh the page for latest result.');
     } catch (error) {
       console.error('Error:', error);
       setResponseMessage('Error occurred while processing the request.');
     }
   };
+
+  const refreshChart = async () => {
+    const url = import.meta.env.VITE_BACKEND_URL;
+    const numOfDataPoints = 100
+    const response = await fetch(url + `/api/v1/aqicn/recent/${numOfDataPoints}`, {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      method: 'GET',
+    });
+    const responseData = await response.json();
+    setAirQualityValues([responseData.airQualityValue]);
+  }
 
   return (
     <div>
@@ -62,15 +75,13 @@ const FormComponent: React.FC = () => {
           Submit
         </button>
       </form>
-
       <p>{responseMessage}</p>
-      <LineChart width={400} height={400} data={data}>
-        <Line type="monotone" dataKey="uv" stroke="#8884d8" />
-        <CartesianGrid stroke="#ccc" />
-        <XAxis dataKey="name" />
-        <YAxis />
-      </LineChart>
-    </div>
+      <div style={{ display: 'flex' }}>
+        {airQualityValues.map((value, index) => (
+          <GaugeChart key={index} label={value.city_name} value={value.pm25_value} />
+        ))}
+      </div>
+    </div >
   );
 };
 

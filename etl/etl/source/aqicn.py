@@ -81,12 +81,13 @@ def insert_historical_pm25(
     cursor: psycopg.Cursor,
     etl_ts: datetime,
     station_id: int,
+    station_name: str,
     station_ts: datetime,
     pm25_value: int,
 ):
     cursor.execute(
-        "insert into historical_pm25 (etl_ts, station_id, station_ts, pm25_value) values (%s, %s, %s, %s)",
-        [etl_ts, station_id, station_ts, pm25_value],
+        "insert into historical_pm25 (etl_ts, station_id, station_name, station_ts, pm25_value) values (%s, %s, %s, %s)",
+        [etl_ts, station_id, station_name, station_ts, pm25_value],
     )
 
 
@@ -102,7 +103,8 @@ def write_to_postgres_pm25(conninfo: str, json_data: AQResponse, etl_ts: datetim
                 logger.warning("No new data from API. Skipped update.")
                 return
             pm25_value = extract_current_pm25(json_data)
-            insert_historical_pm25(cursor, etl_ts, station_id, station_ts, pm25_value)
+            station_name = extract_monitoring_station(json_data)
+            insert_historical_pm25(cursor, etl_ts, station_id, station_name, station_ts, pm25_value)
 
 
 def main(payload: dict):
