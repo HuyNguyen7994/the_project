@@ -9,6 +9,7 @@ dependencies = [
 ]
 
 [tool.setuptools]
+py-modules = ["etl"]
 packages = ["etl"]
 
 [project.optional-dependencies]
