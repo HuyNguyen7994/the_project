@@ -70,7 +70,11 @@ def extract_forecast_pm25(json_data: AQResponse) -> list[AQForecastIndex]:
 
 
 def extract_current_timestamp(json_data: AQResponse) -> datetime:
-    return datetime.fromisoformat(json_data["data"]["time"]["iso"])
+    ts = json_data["data"]["time"]["iso"]
+    try:
+        return datetime.fromisoformat(ts)
+    except ValueError:
+        return datetime.strptime(ts, '%Y-%m-%dT%H:%M:%S.%f%z')
 
 
 def extract_monitoring_station(json_data: AQResponse) -> int:

@@ -27,6 +27,12 @@ SAMPLE_DATA = {
         },
     },
 }
+SAMPLE_TS_NOT_TZ = {
+    "status": "ok",
+    "data": {
+        "time": {"iso": "2024-02-19T06:00:00Z"},
+    }
+}
 SAMPLE_DATA_MISSING_CUR_PM25 = {
     "data": {
         "iaqi": {
@@ -70,6 +76,9 @@ def test_extract_current_timestamp():
         )
         == 0
     )
+
+def test_extract_current_timestamp_notimezone():
+    ts = extract_current_timestamp(SAMPLE_TS_NOT_TZ)
 
 def test_missing_current_pm():
     assert not extract_current_pm25(SAMPLE_DATA_MISSING_CUR_PM25)
