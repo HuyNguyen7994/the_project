@@ -119,6 +119,6 @@ def main(payload: dict):
     lat = payload["lat"]
     lng = payload["lng"]
     json_data, etl_ts = get_gelocalized_feed(lat, lng, token=token)
-    if json_data:
+    if json_data["status"] == "ok":
         logger.debug(json_data)
         write_to_postgres_pm25(conninfo=conninfo, json_data=json_data, etl_ts=etl_ts)

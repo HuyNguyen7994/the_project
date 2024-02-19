@@ -10,6 +10,18 @@ const FormComponent: React.FC = () => {
   const [responseMessage, setResponseMessage] = useState('');
   const [airQualityValues, setAirQualityValues] = useState([]);
 
+  const handleLatitudeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Allow only numeric input for latitude
+    const numericValue = e.target.value.replace(/[^0-9.-]/g, '');
+    setLatitude(numericValue);
+  };
+
+  const handleLongitudeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Allow only numeric input for longitude
+    const numericValue = e.target.value.replace(/[^0-9.-]/g, '');
+    setLongitude(numericValue);
+  };
+
   const submitForm = async () => {
     try {
       const dataToSend = { latitude, longitude };
@@ -54,7 +66,7 @@ const FormComponent: React.FC = () => {
           type="text"
           id="latitude"
           value={latitude}
-          onChange={(e) => setLatitude(e.target.value)}
+          onChange={handleLatitudeChange}
           required
         />
         <br />
@@ -63,7 +75,7 @@ const FormComponent: React.FC = () => {
           type="text"
           id="longitude"
           value={longitude}
-          onChange={(e) => setLongitude(e.target.value)}
+          onChange={handleLongitudeChange}
           required
         />
         <br />
