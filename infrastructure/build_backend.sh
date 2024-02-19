@@ -1,18 +1,16 @@
 #!/bin/bash
-sudo su
-yum install -y nginx
+sudo yum install -y nginx
 
-# Start Nginx and enable it to start on boot
-systemctl start nginx
-systemctl enable nginx
+# Start Nginx
+sudo systemctl start nginx
 
 # Configure Nginx as a reverse proxy for port 8080
-tee /etc/nginx/conf.d/reverse-proxy.conf > /dev/null <<EOF
+sudo tee /etc/nginx/conf.d/reverse-proxy.conf > /dev/null <<EOF
 server {
     listen 80;
 
     location /api/ {
-        proxy_pass http://127.0.0.1:8080/;
+        proxy_pass http://127.0.0.1:8000/api/;
     }
 
     location / {
@@ -22,11 +20,10 @@ server {
 EOF
 
 # Test Nginx configuration and reload
-nginx -t && systemctl reload nginx
-
-echo "Nginx installation and reverse proxy configuration completed."
+sudo nginx -t && sudo systemctl reload nginx
 
 # Build Backend
 cd /the_project/backend/app
 pip install .
-screen -dmS AppBackEnd python -m backend
+nohup python3 -m backend
+nohup python3 -m etl
