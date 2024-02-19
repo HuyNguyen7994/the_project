@@ -2,7 +2,7 @@
 packages = ["etl"]
 
 [project]
-name = "app_backend"
+name = "etl"
 requires-python = ">=3.9"
 version = "0.0.1"
 
