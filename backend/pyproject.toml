@@ -1,8 +1,8 @@
 [tool.setuptools]
-packages = ["etl"]
+packages = ["backend"]
 
 [project]
-name = "etl"
+name = "backend"
 requires-python = ">=3.9"
 version = "0.0.1"
 
