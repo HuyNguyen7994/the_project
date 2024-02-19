@@ -1,21 +1,24 @@
+# Product Overview
+
 ## What problem is the product aimed at solving?
-Check air quality in selected Area. Able to see past result requested by others.
+The product aims to address the need for monitoring air quality in a specific area. Users can not only check the current air quality but also access historical data requested by others.
 
 ## Who is the product geared towards (targeted audience)?
-People who care about air quality and also curious of which area air quality is most concerned
+The product is designed for individuals who are concerned about air quality and are curious about the air quality levels in different areas.
 
 ## How is my product unique?
-It's not. But since you can see what others search for, it might give you an idea of how people care about that particular area air quality
-
+While the product may not be unique in its core functionality, it stands out by allowing users to see what others are searching for. This feature provides insights into the areas where people are most concerned about air quality.
 
 ## High-level Architecture
 ![](/docs/high_level.png)
-- Frontend: Static Vite WebApps - A convinient UI to interact with backend. Come with pretty Chart.
-- Backend: FastApi - Process to interact with database and also execute ETL process
-- Database: Postgres - A popular database choice. Can't go wrong with this for small to medium data volume.
-- Messaging Queue: RabbitMQ - ETL process will take unbound time to complete, decouple it from normal backend process is a good idea. Also, it's now possible to distribute the job to different ETL process.
-- ETL Process: another backend process, but this will not be accessible to public. Its purpose is to query datasource with confidential API token (hence the need to be hidden from public).
+- **Frontend**: Utilizes Static Vite WebApps with an intuitive UI for interacting with the backend. It includes visually appealing charts.
+- **Backend**: Powered by FastApi, the backend handles interactions with the database and executes the Extract, Transform, Load (ETL) process.
+- **Database**: Relies on Postgres, a popular choice suitable for small to medium data volumes.
+- **Messaging Queue**: Incorporates RabbitMQ to decouple the time-consuming ETL process from normal backend operations. This also enables job distribution across different ETL processes.
+- **ETL Process**: Another backend process, not accessible to the public. Its primary function is to query the datasource using a confidential API token, ensuring it remains hidden from public view.
+
+# Release Updates
 
 ## Changelog
-- v0.1: Minimum Viable Product with all functionalities
-- v0.2 (planned): richer visualization and explainations
+- **v0.1**: Initial release with all essential functionalities.
+- **v0.2 (planned)**: Upcoming release featuring enhanced visualizations and explanations.
