@@ -47,5 +47,5 @@ def run_etl(etl_pipeline: str, latitude: str, longtitude: str):
 def get_recent_air_quality(num: int):
     with psycopg.connect(conninfo=os.getenv("POSTGRES_CONNINFO")) as connection:
         with connection.cursor() as cursor:
-            cursor.execute("select * from historical_pm25 order by etl_ts limit %s", (num,))
+            cursor.execute("select city_name || ' as of ' || station_ts, pm25_value from historical_pm25 order by etl_ts limit %s", (num,))
             return cursor.fetchall()

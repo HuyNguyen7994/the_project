@@ -2,17 +2,13 @@ import { useState } from 'react'
 import './App.css'
 import GaugeChart from './GaugeChart';
 
-interface AirQualityRow {
-  city_name: string;
-  pm25_value: number
-}
 
 const FormComponent: React.FC = () => {
   const url = import.meta.env.VITE_BACKEND_URL;
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
   const [responseMessage, setResponseMessage] = useState('');
-  const [airQualityValues, setAirQualityValues] = useState<AirQualityRow[]>([]);
+  const [airQualityValues, setAirQualityValues] = useState([]);
 
   const submitForm = async () => {
     try {
@@ -47,7 +43,7 @@ const FormComponent: React.FC = () => {
       method: 'GET',
     });
     const responseData = await response.json();
-    setAirQualityValues([responseData.airQualityValue]);
+    setAirQualityValues(responseData);
   }
 
   return (
@@ -72,13 +68,16 @@ const FormComponent: React.FC = () => {
         />
         <br />
         <button type="button" onClick={submitForm}>
-          Submit
+          Submit Coordinate
+        </button>
+        <button type="button" onClick={refreshChart}>
+          Refresh Chart
         </button>
       </form>
       <p>{responseMessage}</p>
-      <div style={{ display: 'flex' }}>
+      <div style={{ display: 'flex' , flexDirection: 'column', flex: 1}}>
         {airQualityValues.map((value, index) => (
-          <GaugeChart key={index} label={value.city_name} value={value.pm25_value} />
+          <GaugeChart key={index} label={value[0]} value={value[1]} />
         ))}
       </div>
     </div >

@@ -76,18 +76,20 @@ def extract_current_timestamp(json_data: AQResponse) -> datetime:
 def extract_monitoring_station(json_data: AQResponse) -> int:
     return json_data["data"]["idx"]
 
+def extract_monitoring_city_name(json_data: AQResponse) -> str:
+    return json_data["data"]["city"]["name"]
 
 def insert_historical_pm25(
     cursor: psycopg.Cursor,
     etl_ts: datetime,
     station_id: int,
-    station_name: str,
+    city_name: str,
     station_ts: datetime,
     pm25_value: int,
 ):
     cursor.execute(
-        "insert into historical_pm25 (etl_ts, station_id, station_name, station_ts, pm25_value) values (%s, %s, %s, %s)",
-        [etl_ts, station_id, station_name, station_ts, pm25_value],
+        "insert into historical_pm25 (etl_ts, station_id, city_name, station_ts, pm25_value) values (%s, %s, %s, %s, %s)",
+        [etl_ts, station_id, city_name, station_ts, pm25_value],
     )
 
 
@@ -103,8 +105,8 @@ def write_to_postgres_pm25(conninfo: str, json_data: AQResponse, etl_ts: datetim
                 logger.warning("No new data from API. Skipped update.")
                 return
             pm25_value = extract_current_pm25(json_data)
-            station_name = extract_monitoring_station(json_data)
-            insert_historical_pm25(cursor, etl_ts, station_id, station_name, station_ts, pm25_value)
+            city_name = extract_monitoring_city_name(json_data)
+            insert_historical_pm25(cursor, etl_ts, station_id, city_name, station_ts, pm25_value)
 
 
 def main(payload: dict):
