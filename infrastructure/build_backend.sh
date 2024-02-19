@@ -29,4 +29,4 @@ echo "Nginx installation and reverse proxy configuration completed."
 # Build Backend
 cd /the_project/backend/app
 pip install .
-screen -dmS AppBackEnd uvicorn app.main:app --port 8080
+screen -dmS AppBackEnd python -m backend

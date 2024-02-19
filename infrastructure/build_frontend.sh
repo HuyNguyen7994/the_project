@@ -8,4 +8,3 @@ cd /the_project/frontend/frontend
 npm i
 npm run build
 cp -a /the_project/frontend/frontend/dist/. /var/www/html
-service httpd start
