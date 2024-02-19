@@ -74,7 +74,7 @@ def extract_current_timestamp(json_data: AQResponse) -> datetime:
     try:
         return datetime.fromisoformat(ts)
     except ValueError:
-        return datetime.strptime(ts, '%Y-%m-%dT%H:%M:%S:%f%z')
+        return datetime.strptime(ts, '%Y-%m-%dT%H:%M:%S%z')
 
 
 def extract_monitoring_station(json_data: AQResponse) -> int:
