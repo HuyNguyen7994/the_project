@@ -9,8 +9,7 @@ dependencies = [
 ]
 
 [tool.setuptools]
-py-modules = ["etl"]
-packages = ["etl"]
+packages = ["etl", "test_etl]
 
 [project.optional-dependencies]
 dev = ["pytest"]
